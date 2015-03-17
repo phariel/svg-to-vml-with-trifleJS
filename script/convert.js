@@ -36,7 +36,13 @@ function main() {
 				break;
 			case "svg":
 				var urlSvg = url.replace('/svg/', '/');
-				res.write(fs.read(urlSvg.substring(urlSvg.indexOf('/') + 1)));
+				res.write(
+					fs.read(urlSvg.substring(urlSvg.indexOf('/') + 1))
+						.replace(/<\?xml[^>]*>/g, "")
+						.replace(/<!--[^>]*-->/g, "")
+						.replace(/<!DOCTYPE[^>]*>/g, "")
+						.replace(/id=\S*/g, "")
+				);
 				break;
 			case "vml":
 				res.write(fs.read(vmlTempl));
@@ -63,10 +69,10 @@ function parseSvg(fileNameAndPath) {
 			});
 
 			svgPage.close();
-
 			var fileName = fileNameAndPath.substring(fileNameAndPath.lastIndexOf('/') + 1);
 
-			fs.write(outputPath + fileName, svgContent);
+				
+			//fs.write(outputPath + fileName, svgContent);
 			convertToVml(encodeURIComponent(svgContent), fileName);
 		});
 	});
@@ -79,13 +85,14 @@ function convertToVml(svgContent, fileName) {
 		var vmlContent = vmlPage.evaluate(function (svgContent) {
 			var $ = window.$;
 			var $result = $('.result');
-			$result.html('<script type="image/svg+xml">' + decodeURIComponent(svgContent) + '</script>');
+			var content = decodeURIComponent(svgContent)
+			$result.html('<script type="image/svg+xml">' + content + '</script>');
 			window.NAIBU._main();
 			return $result.html();
 		}, svgContent);
+		
 
 		vmlPage.close();
-
 		fs.write(outputPath + fileName.replace(".svg", ".vml"), vmlContent);
 
 		fileIndex++;
