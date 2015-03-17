@@ -54,6 +54,11 @@ function main() {
 		res.close();
 	});
 
+
+
+	fs.makeDirectory(outputPath);
+
+
 	parseSvg(list[fileIndex]);
 }
 
