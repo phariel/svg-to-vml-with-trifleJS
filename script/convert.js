@@ -3,10 +3,10 @@ var webserver = require('webserver');
 var fs = require('fs');
 var args = require('system').args;
 
-var outputPath = 'output/';
-var jqueryFile = 'lib/jquery.min.js';
-var sieFile = 'lib/sie18-ef.1.js';
-var vmlTempl = 'script/convert.html';
+var outputPath = 'output\\';
+var jqueryFile = 'lib\\jquery.min.js';
+var sieFile = 'lib\\sie18-ef.1.js';
+var vmlTempl = 'script\\convert.html';
 
 
 var fileIndex = 0;
@@ -37,7 +37,7 @@ function main() {
 			case "svg":
 				var urlSvg = url.replace('/svg/', '/');
 				res.write(
-					fs.read(urlSvg.substring(urlSvg.indexOf('/') + 1))
+					fs.read(path + "\\" + urlSvg.substring(urlSvg.indexOf('/') + 1))
 						.replace(/<\?xml[^>]*>/g, "")
 						.replace(/<!--[^>]*-->/g, "")
 						.replace(/<!DOCTYPE[^>]*>/g, "")
@@ -60,8 +60,9 @@ function main() {
 function parseSvg(fileNameAndPath) {
 	var svgPage = webPage.create();
 	var svgContent;
+	var fileName = fileNameAndPath.substring(fileNameAndPath.lastIndexOf('\\') + 1);
 
-	svgPage.open('http://localhost:9527/svg/' + fileNameAndPath, function (status) {
+	svgPage.open('http://localhost:9527/svg/' + fileName, function () {
 		svgPage.includeJs('http://localhost:9527/jquery', function () {
 			svgContent = svgPage.evaluate(function () {
 				var $ = window.$;
@@ -69,9 +70,7 @@ function parseSvg(fileNameAndPath) {
 			});
 
 			svgPage.close();
-			var fileName = fileNameAndPath.substring(fileNameAndPath.lastIndexOf('/') + 1);
 
-				
 			//fs.write(outputPath + fileName, svgContent);
 			convertToVml(encodeURIComponent(svgContent), fileName);
 		});
@@ -80,26 +79,28 @@ function parseSvg(fileNameAndPath) {
 
 
 function convertToVml(svgContent, fileName) {
+	console.log("Converting: " + fileName);
 	var vmlPage = webPage.create();
-	vmlPage.open('http://localhost:9527/vml', function (status) {
+	vmlPage.open('http://localhost:9527/vml', function () {
 		var vmlContent = vmlPage.evaluate(function (svgContent) {
 			var $ = window.$;
 			var $result = $('.result');
-			var content = decodeURIComponent(svgContent)
+			var content = decodeURIComponent(svgContent);
 			$result.html('<script type="image/svg+xml">' + content + '</script>');
 			window.NAIBU._main();
 			return $result.html();
 		}, svgContent);
-		
+
 
 		vmlPage.close();
 		fs.write(outputPath + fileName.replace(".svg", ".vml"), vmlContent);
 
 		fileIndex++;
 		if (fileIndex === list.length) {
-			console.log("Convert SVG complete");
+			console.log("All of SVG converting completed");
 			phantom.exit();
 		} else {
+			console.log("Completed");
 			parseSvg(list[fileIndex]);
 		}
 	});
