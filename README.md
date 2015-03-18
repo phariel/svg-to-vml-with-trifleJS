@@ -4,4 +4,4 @@
 
 Or 
 
-`$ grunt`
+`$ npm install && grunt`
