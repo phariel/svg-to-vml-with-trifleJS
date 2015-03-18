@@ -20,7 +20,7 @@ if (args.length === 1) {
 }
 
 if(scriptPath.indexOf('\\') > -1){
-	scriptPath = scriptPath.substr(0, scriptPath.indexOf('\\') + 1);
+	scriptPath = scriptPath.substr(0, scriptPath.lastIndexOf('\\') + 1);
 }
 else{
 	scriptPath = "";
@@ -29,6 +29,8 @@ else{
 jqueryFile = scriptPath + jqueryFile;
 sieFile = scriptPath + sieFile;
 vmlTempl = scriptPath + vmlTempl;
+
+//console.log("---- base path : " + scriptPath + " ----")
 
 function main() {
 	var server = webserver.create();
@@ -110,7 +112,7 @@ function convertToVml(svgContent, fileName) {
 
 		fileIndex++;
 		if (fileIndex === list.length) {
-			console.log("All of SVG converting completed");
+			console.log("----> All of SVG converting completed");
 			phantom.exit();
 		} else {
 			parseSvg(list[fileIndex]);
