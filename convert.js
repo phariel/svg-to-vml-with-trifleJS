@@ -3,16 +3,15 @@ var webserver = require('webserver');
 var fs = require('fs');
 var args = require('system').args;
 
-var outputPath = 'output\\';
 var jqueryFile = 'lib\\jquery.min.js';
 var sieFile = 'lib\\sie18-ef.1.js';
-var vmlTempl = 'script\\convert.html';
+var vmlTempl = 'lib\\convert.html';
 
 
 var fileIndex = 0;
 var path = args[1];
 var list = fs.list(path);
-
+var scriptPath = args[0];
 
 if (args.length === 1) {
 	console.log("Please pass a path");
@@ -20,6 +19,16 @@ if (args.length === 1) {
 	main();
 }
 
+if(scriptPath.indexOf('\\') > -1){
+	scriptPath = scriptPath.substr(0, scriptPath.indexOf('\\') + 1);
+}
+else{
+	scriptPath = "";
+}
+
+jqueryFile = scriptPath + jqueryFile;
+sieFile = scriptPath + sieFile;
+vmlTempl = scriptPath + vmlTempl;
 
 function main() {
 	var server = webserver.create();
@@ -54,12 +63,12 @@ function main() {
 		res.close();
 	});
 
-
-
-	fs.makeDirectory(outputPath);
-
+	list = list.filter(function(filePath){
+		return filePath.indexOf(".svg") > -1
+	});
 
 	parseSvg(list[fileIndex]);
+
 }
 
 function parseSvg(fileNameAndPath) {
@@ -76,7 +85,6 @@ function parseSvg(fileNameAndPath) {
 
 			svgPage.close();
 
-			//fs.write(outputPath + fileName, svgContent);
 			convertToVml(encodeURIComponent(svgContent), fileName);
 		});
 	});
@@ -97,7 +105,7 @@ function convertToVml(svgContent, fileName) {
 
 
 		vmlPage.close();
-		fs.write(outputPath + fileName.replace(".svg", ".vml"), vmlContent);
+		fs.write(path + "\\" + fileName.replace(".svg", ".vml"), vmlContent);
 		console.log("-> " + fileName);
 
 		fileIndex++;
