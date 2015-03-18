@@ -4,7 +4,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     shell : {
       vml : {
-        command:"bin\\TrifleJS.exe script\\convert.js example --emulate=IE8"
+        command:"bin\\TrifleJS.exe convert.js example --emulate=IE8"
       }
     }
   });
