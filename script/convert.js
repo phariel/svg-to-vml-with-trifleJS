@@ -84,7 +84,6 @@ function parseSvg(fileNameAndPath) {
 
 
 function convertToVml(svgContent, fileName) {
-	console.log("Converting: " + fileName);
 	var vmlPage = webPage.create();
 	vmlPage.open('http://localhost:9527/vml', function () {
 		var vmlContent = vmlPage.evaluate(function (svgContent) {
@@ -99,13 +98,13 @@ function convertToVml(svgContent, fileName) {
 
 		vmlPage.close();
 		fs.write(outputPath + fileName.replace(".svg", ".vml"), vmlContent);
+		console.log("-> " + fileName);
 
 		fileIndex++;
 		if (fileIndex === list.length) {
 			console.log("All of SVG converting completed");
 			phantom.exit();
 		} else {
-			console.log("Completed");
 			parseSvg(list[fileIndex]);
 		}
 	});
